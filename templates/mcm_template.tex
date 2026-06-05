@@ -1,0 +1,184 @@
+﻿% MCM/ICM (美赛) LaTeX Template
+% Math Modeling Contest Agent
+\documentclass[12pt]{article}
+
+% === Packages ===
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{titling}
+
+% === Page Setup ===
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\onehalfspacing
+
+% === Header/Footer ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Team \#XXXXXX}
+\fancyhead[R]{\small Page \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% === Code Style ===
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    xleftmargin=2em,
+}
+
+% === Title ===
+\pretitle{\begin{center}\LARGE\bfseries}
+\posttitle{\end{center}}
+\title{Problem Chosen: [A/B/C/D/E/F]\\[0.5em]\large Paper Title}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+% === Summary ===
+\begin{center}
+\textbf{\Large Summary}
+\end{center}
+
+% TODO: Summary written by Agent
+This paper addresses [problem background] by developing [model type] models.
+
+\textbf{Keywords:} keyword1; keyword2; keyword3; keyword4
+
+\newpage
+\tableofcontents
+\newpage
+
+% ==========================================
+% 1. Introduction
+% ==========================================
+\section{Introduction}
+
+\subsection{Problem Background}
+% TODO: Agent fills in
+
+\subsection{Restatement of the Problem}
+% TODO: Agent fills in
+
+\subsection{Our Work}
+% Overview of approach
+
+% ==========================================
+% 2. Assumptions and Justifications
+% ==========================================
+\section{Assumptions and Justifications}
+
+\begin{itemize}
+    \item \textbf{Assumption 1:} Description. \textit{Justification:} Reason.
+    \item \textbf{Assumption 2:} Description. \textit{Justification:} Reason.
+\end{itemize}
+
+% ==========================================
+% 3. Notations
+% ==========================================
+\section{Notations}
+
+\begin{table}[H]
+\centering
+\caption{Notation Table}
+\begin{tabular}{cll}
+\toprule
+\textbf{Symbol} & \textbf{Description} & \textbf{Unit} \\
+\midrule
+$x$ & Variable description & - \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==========================================
+% 4. Models
+% ==========================================
+\section{Models}
+
+\subsection{Task 1: Model Name}
+\subsubsection{Model Formulation}
+% TODO: Agent fills in mathematical model
+
+\subsubsection{Solution Approach}
+% TODO: Agent fills in solution method
+
+\subsubsection{Results and Analysis}
+% TODO: Agent fills in results
+
+\subsection{Task 2: Model Name}
+% Same structure as above
+
+\subsection{Task 3: Model Name}
+% Same structure as above
+
+% ==========================================
+% 5. Sensitivity Analysis
+% ==========================================
+\section{Sensitivity Analysis}
+% TODO: Agent fills in
+
+% ==========================================
+% 6. Model Evaluation
+% ==========================================
+\section{Model Evaluation}
+
+\subsection{Strengths}
+\begin{enumerate}
+    \item Strength 1
+    \item Strength 2
+\end{enumerate}
+
+\subsection{Weaknesses}
+\begin{enumerate}
+    \item Weakness 1
+    \item Weakness 2
+\end{enumerate}
+
+\subsection{Future Work}
+% TODO: Agent fills in
+
+% ==========================================
+% 7. Conclusion
+% ==========================================
+\section{Conclusion}
+% TODO: Agent fills in
+
+% ==========================================
+% References
+% ==========================================
+\begin{thebibliography}{99}
+
+\bibitem{ref1} Author. Title[J]. Journal, Year, Volume(Issue): Pages.
+\bibitem{ref2} Author. Title[M]. Publisher, Year.
+
+\end{thebibliography}
+
+% ==========================================
+% Appendices
+% ==========================================
+\appendix
+\section{Code Listing}
+% Key solver code
+
+\end{document}

@@ -1,0 +1,171 @@
+﻿% CUMCM (国赛) LaTeX Template
+% Math Modeling Contest Agent
+\documentclass[12pt,a4paper]{ctexart}
+
+% === Packages ===
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+
+% === Page Setup ===
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{2em}
+
+% === Header/Footer ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\small 数学建模竞赛论文}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% === Code Style ===
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    xleftmargin=2em,
+}
+
+% === Title ===
+\title{\textbf{题目：\hspace{2em}\makebox[8cm]{\dotfill}}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+% === Abstract ===
+\begin{center}
+\textbf{\Large 摘\quad 要}
+\end{center}
+
+% TODO: 摘要由 Agent 自动生成
+本文针对[题目背景]，建立了[模型类型]模型，解决了[核心问题]。
+
+\textbf{关键词：}关键词1；关键词2；关键词3；关键词4
+
+\newpage
+\tableofcontents
+\newpage
+
+% ==========================================
+% 1. 问题重述
+% ==========================================
+\section{问题重述}
+
+% TODO: Agent 自动生成
+
+% ==========================================
+% 2. 问题分析
+% ==========================================
+\section{问题分析}
+
+% TODO: Agent 自动生成
+
+% ==========================================
+% 3. 模型假设与符号说明
+% ==========================================
+\section{模型假设与符号说明}
+
+\subsection{基本假设}
+\begin{enumerate}[label=(\arabic*)]
+    \item 假设1
+    \item 假设2
+\end{enumerate}
+
+\subsection{符号说明}
+\begin{table}[H]
+\centering
+\caption{符号说明表}
+\begin{tabular}{cll}
+\toprule
+\textbf{符号} & \textbf{含义} & \textbf{单位} \\
+\midrule
+$x$ & 变量说明 & - \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==========================================
+% 4. 模型建立与求解
+% ==========================================
+\section{模型建立与求解}
+
+\subsection{问题一：模型名称}
+\subsubsection{模型建立}
+% TODO: Agent 自动生成数学模型推导
+
+\subsubsection{模型求解}
+% TODO: Agent 自动生成求解过程和结果
+
+\subsubsection{结果分析}
+% TODO: Agent 自动生成结果分析
+
+\subsection{问题二：模型名称}
+% 结构同上
+
+\subsection{问题三：模型名称}
+% 结构同上
+
+% ==========================================
+% 5. 灵敏度分析
+% ==========================================
+\section{灵敏度分析}
+% TODO: Agent 自动生成
+
+% ==========================================
+% 6. 模型评价与改进
+% ==========================================
+\section{模型评价与改进}
+
+\subsection{模型优点}
+\begin{enumerate}
+    \item 优点1
+    \item 优点2
+\end{enumerate}
+
+\subsection{模型缺点}
+\begin{enumerate}
+    \item 缺点1
+    \item 缺点2
+\end{enumerate}
+
+\subsection{改进方向}
+% TODO: Agent 自动生成
+
+% ==========================================
+% 参考文献
+% ==========================================
+\begin{thebibliography}{99}
+
+\bibitem{ref1} 作者. 标题[J]. 期刊, 年份, 卷(期): 页码.
+\bibitem{ref2} 作者. 书名[M]. 出版地: 出版社, 年份.
+
+\end{thebibliography}
+
+% ==========================================
+% 附录
+% ==========================================
+\appendix
+\section{核心代码}
+% 附上关键求解代码
+
+\end{document}

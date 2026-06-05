@@ -1,0 +1,39 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.bak
+
+# Workspace / state (contest run artifacts)
+CUMCM_Workspace/
+memory/
+state/
+output/
+images/
+data/
+models/
+verifications/
+latex/
+
+# Build outputs
+build_log.txt
+test_output.txt
+
+# Temporary / logs
+*.log
+iteration.json
+pipeline.json
+review_verdict.json
+review_request.md
+evaluation_log.md
+thought_process.md
+human_intervention.md
+*_results.json
+draft_paper*
+paper_final*
+paper_text*
+section_42_new.md
+
+# IDE
+.vscode/
+.idea/

@@ -5,7 +5,7 @@
 <h1 align="center">Math Modeling Contest Agent</h1>
 
 <p align="center">
-  <strong>v5.3.3</strong> · 工业级数学建模竞赛全流程 Agent
+  <strong>v5.7.1</strong> · 工业级数学建模竞赛全流程 Agent
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
   <img alt="CUMCM" src="https://img.shields.io/badge/竞赛-国赛%20CUMCM-1A6FC4">
   <img alt="MCM" src="https://img.shields.io/badge/竞赛-美赛%20MCM%2FICM-E28E2C">
   <img alt="51MCM" src="https://img.shields.io/badge/竞赛-五一赛%2051MCM-2E9E44">
-  <img alt="Version" src="https://img.shields.io/badge/version-5.3.3-blue">
+  <img alt="Version" src="https://img.shields.io/badge/version-5.7.1-blue">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
@@ -86,6 +86,82 @@ codex skills install github.com/xuec699-sudo/math-modeling-skills
 - "生成论文" / "write paper" — **强制走 `build_docx.py`**（非 Pandoc）
 - "修改论文" / "revise paper" — **原地编辑 DOCX**
 - "审阅论文" — QA 清单检查
+
+## 不知道怎么调用？直接复制这些提示词
+
+安装完成后，不需要手动运行 `SKILL.md`。你只要在 Codex 里明确提到 `math-modeling-contest`，或者直接描述“数学建模竞赛 / 国赛 / 美赛 / 五一赛 / CUMCM / MCM / ICM”，Codex 就会读取这个 skill 并按里面的流程工作。
+
+### 最推荐的首次启动提示词
+
+```text
+请使用 math-modeling-contest skill 帮我完成这道数学建模竞赛题。
+竞赛类型：国赛/CUMCM
+运行模式：先 Manual，不要直接写论文，每一步先给我门控检查结果。
+我会把题目文件、附件数据和已有代码发给你。
+请先完成：读题、问题拆解、数据检查、建模路线选择，并告诉我下一步该做什么。
+```
+
+### 如果你想全自动推进
+
+```text
+请使用 math-modeling-contest skill，按 Autopilot 模式求解这道题。
+要求：从题目解析、建模、代码、结果验证、图表、论文初稿到最终审阅都走完整流程。
+每个阶段必须留下可追溯文件，论文中的数字必须能追溯到脚本输出。
+```
+
+### 如果你只想做其中一问
+
+```text
+请使用 math-modeling-contest skill，只处理问题 1。
+先判断这是预测、优化、评价、机理建模还是综合类问题。
+然后给出 2-3 个候选模型，每个模型都要有优缺点、数据需求和最小 PoC 验证方案。
+```
+
+### 如果你已经有论文初稿，只想修改
+
+```text
+请使用 math-modeling-contest skill 修改我的已有 DOCX 论文。
+注意：不要从 Markdown 重新生成整篇论文，必须用 in-place edit 的方式在原文档基础上修改。
+我会说明要改的段落、表格或图。
+```
+
+### 如果 skill 没有自动触发
+
+把第一句话写得更明确：
+
+```text
+Use the math-modeling-contest skill. Read its SKILL.md first, then follow its gate-driven workflow.
+```
+
+或者中文：
+
+```text
+请显式调用 math-modeling-contest 这个 skill，先读取 SKILL.md，再按 G1-G6 门控流程执行。
+```
+
+### 本地手动安装方式
+
+如果 `codex skills install` 不可用，可以手动安装：
+
+```bash
+git clone https://github.com/xuec699-sudo/math-modeling-skills.git math-modeling-contest
+```
+
+然后把整个 `math-modeling-contest/` 文件夹放到你的 Codex skills 目录中，例如：
+
+```text
+$CODEX_HOME/skills/math-modeling-contest/
+```
+
+目录里必须能直接看到：
+
+```text
+math-modeling-contest/
+├── SKILL.md
+├── scripts/
+├── references/
+└── templates/
+```
 
 ### 论文生成（关键流程）
 

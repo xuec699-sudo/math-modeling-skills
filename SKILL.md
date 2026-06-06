@@ -11,12 +11,23 @@ description: >
   model dependency DAG, score trajectory tracking, and writing anti-pattern detection.
 metadata:
   version: "5.7.1"
-  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit (KyrieZhang329-inspired) + baseline-first modeling + section structure + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 18-22pg standard
+  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit + baseline-first modeling + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 9000-char substantive floor
 ---
 
 # Math Modeling Contest Agent v5.7.1
 
 ---
+
+## Open-Source Quick Start
+
+When a user provides a math modeling contest problem, first decide whether this is a new solution or a revision of an existing DOCX:
+
+- New contest solution: parse the problem, inspect attachments, design models, run code, verify results, write Markdown, then generate DOCX with `scripts/build_docx.py`.
+- Existing DOCX revision: edit the DOCX in place with `python-docx`; do not regenerate the whole paper unless the user explicitly asks.
+
+Use Manual mode when the user wants checkpoint control. Use Autopilot only when the user explicitly asks for full automatic execution.
+
+Minimum paper content rule: require at least 9,000 substantive Chinese characters. There is no artificial upper limit and no fixed character-count target. Never add filler to chase length.
 
 ## 
 ### Format Standard (v5.2.2 -- based on 建模竞赛A题_最终论文.docx)
@@ -325,7 +336,7 @@ description: >
   model dependency DAG, score trajectory tracking, and writing anti-pattern detection.
 metadata:
   version: "5.7.1"
-  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit (KyrieZhang329-inspired) + baseline-first modeling + section structure + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 18-22pg standard
+  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit + baseline-first modeling + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 9000-char substantive floor
 ---
 
 # Math Modeling Contest Agent v5.7.1
@@ -572,7 +583,7 @@ description: >
   model dependency DAG, score trajectory tracking, and writing anti-pattern detection.
 metadata:
   version: "5.7.1"
-  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit (KyrieZhang329-inspired) + baseline-first modeling + section structure + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 18-22pg standard
+  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit + baseline-first modeling + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 9000-char substantive floor
 ---
 
 # Math Modeling Contest Agent v5.7.1
@@ -684,7 +695,7 @@ description: >
   model dependency DAG, score trajectory tracking, and writing anti-pattern detection.
 metadata:
   version: "5.7.1"
-  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit (KyrieZhang329-inspired) + baseline-first modeling + section structure + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 18-22pg standard
+  short-description: Math modeling contest v5.7.1 - G1-G6 gate contracts + PoC hard gate + frozen staleness detection + P1 change propagation + independent 3-layer audit + baseline-first modeling + figure D-A-C rule + abstract template + LaTeX verification + L3+ model derivation depth + result traceability + 9000-char substantive floor
 ---
 
  for inline
@@ -1130,7 +1141,7 @@ and methodological inspiration. The agent should identify: (a) paper structure,
 | `content_assembly` | Write Markdown draft → build_docx.py → verify 9,000+ substantive chars + OMML formulas | 20-30 min |
 | `integrity_gate` | 7-class academic integrity checklist (citations, data, stats, consistency) | 5 min |
 | `paper_review` | Independent 5-reviewer panel review | 10-15 min |
-| `docx_render_qa` | Open DOCX in Word, verify OMML formulas render, check page count 18-22 | 10-15 min |
+| `docx_render_qa` | Open DOCX in Word, verify OMML formulas render, check layout, figures, tables, and Markdown cleanup | 10-15 min |
 | `structure_qa` | Structural validation + auto-fix | 2-5 min |
 | `final_deliver` | Export final DOCX/PDF | 5 min |
 

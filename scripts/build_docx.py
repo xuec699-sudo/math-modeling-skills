@@ -43,6 +43,51 @@ def inject_omml(para, omml_xml):
         print(f"  [WARN] OMML inject: {e}")
         return False
 
+# ── Markdown cleanup ─────────────────────────────────────────
+def clean_md_text(text):
+    """Remove Markdown syntax that should not appear in the final DOCX text."""
+    text = str(text)
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", text)
+    text = text.replace("\\*", "*").replace("\\_", "_").replace("\\`", "`")
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"!\[([^\]]*)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"^\s*>\s*", "", text)
+    text = re.sub(r"^\s*[-*+]\s+", "", text)
+    text = re.sub(r"^\s*\d+[.)]\s+", "", text)
+    text = re.sub(r"(\*\*|__)(.*?)\1", r"\2", text)
+    text = re.sub(r"(?<!\w)(\*|_)([^*_]+)\1(?!\w)", r"\2", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+def add_markdown_runs(paragraph, text, size=12):
+    """Add cleaned text while preserving simple bold markdown."""
+    text = str(text)
+    pos = 0
+    pattern = re.compile(r"(\*\*|__)(.+?)\1")
+    for m in pattern.finditer(text):
+        before = clean_md_text(text[pos:m.start()])
+        if before:
+            r = paragraph.add_run(before)
+            set_font(r, size)
+        bold_text = clean_md_text(m.group(2))
+        if bold_text:
+            r = paragraph.add_run(bold_text)
+            set_font(r, size, bold=True)
+        pos = m.end()
+    rest = clean_md_text(text[pos:])
+    if rest:
+        r = paragraph.add_run(rest)
+        set_font(r, size)
+
+def count_substantive_chars(text):
+    """Approximate paper substance, excluding Markdown/code scaffolding."""
+    text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    text = re.sub(r"\$\$.*?\$\$", "", text, flags=re.DOTALL)
+    text = re.sub(r"\|[-:\s|]+\|?", "", text)
+    text = clean_md_text(text)
+    return len(re.findall(r"[\u4e00-\u9fffA-Za-z0-9]", text))
+
 # ── Three-line Table ─────────────────────────────────────────
 def _add_table_cell_text(cell, text):
     """Add text to a table cell, converting $...$ inline formulas to OMML."""
@@ -61,14 +106,15 @@ def _add_table_cell_text(cell, text):
             if omml:
                 inject_omml(p, omml)
             else:
-                r = p.add_run("$" + seg + "$")
+                r = p.add_run("$" + clean_md_text(seg) + "$")
                 r.font.name = "Times New Roman"
                 r._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
                 r.font.size = Pt(9)
         else:
             # Text segment
-            if seg.strip():
-                r = p.add_run(seg)
+            cleaned = clean_md_text(seg)
+            if cleaned:
+                r = p.add_run(cleaned)
                 r.font.name = "Times New Roman"
                 r._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
                 r.font.size = Pt(9)
@@ -78,7 +124,7 @@ def add_three_line_table(doc, headers, rows, caption_text=None):
     if caption_text:
         cap = doc.add_paragraph()
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = cap.add_run(caption_text)
+        r = cap.add_run(clean_md_text(caption_text))
         r.font.name = "Times New Roman"
         r._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
         r.font.size = Pt(10)
@@ -158,6 +204,7 @@ def build_paper(md_path, output_path):
     with open(md_path, "r", encoding="utf-8") as f:
         raw = f.read()
     lines = raw.split("\n")
+    source_chars = count_substantive_chars(raw)
 
     doc = Document()
     for s in doc.sections:
@@ -166,9 +213,19 @@ def build_paper(md_path, output_path):
 
     i = 0; eq_ok = eq_fail = tbl_n = fig_n = 0
     INLINE_EQ = re.compile(r"\$(.+?)\$")
+    in_code_block = False
 
     while i < len(lines):
         line = lines[i].rstrip()
+
+        # Code fence - skip fenced code content entirely.
+        if line.strip().startswith("```"):
+            in_code_block = not in_code_block
+            i += 1
+            continue
+        if in_code_block:
+            i += 1
+            continue
 
         # Skip empty
         if not line: i += 1; continue
@@ -177,24 +234,20 @@ def build_paper(md_path, output_path):
         if line.strip() in ("---", "***", "___"):
             i += 1; continue
 
-        # Code fence - skip silently
-        if line.strip().startswith("```"):
-            i += 1; continue
-
         # Heading
         if line.startswith("## "):
             p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(12)
-            r = p.add_run(line[3:]); set_font(r, 14, True, "黑体"); i += 1; continue
+            r = p.add_run(clean_md_text(line[3:])); set_font(r, 14, True, "黑体"); i += 1; continue
         if line.startswith("### "):
             p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(8)
-            r = p.add_run(line[4:]); set_font(r, 12, True, "黑体"); i += 1; continue
+            r = p.add_run(clean_md_text(line[4:])); set_font(r, 12, True, "黑体"); i += 1; continue
         if line.startswith("#### "):
             p = doc.add_paragraph(); p.paragraph_format.space_before = Pt(6)
-            r = p.add_run(line[5:]); set_font(r, 12, True, "宋体"); i += 1; continue
+            r = p.add_run(clean_md_text(line[5:])); set_font(r, 12, True, "宋体"); i += 1; continue
         if line.startswith("# "):
             p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_before = Pt(40)
-            r = p.add_run(line[2:]); set_font(r, 18, True, "黑体"); i += 1; continue
+            r = p.add_run(clean_md_text(line[2:])); set_font(r, 18, True, "黑体"); i += 1; continue
 
         # Table
         if "|" in line and i+1 < len(lines) and re.match(r"^[\|\s\-:]+$", lines[i+1].strip()):
@@ -206,7 +259,7 @@ def build_paper(md_path, output_path):
                 prev = lines[j].strip()
                 cm = re.match(r"(?:\*\*)?表\s*(\d+)\s*[：:\s]?\s*(.+?)(?:\*\*)?$", prev)
                 if cm:
-                    caption = f"表{cm.group(1)} {cm.group(2).strip().rstrip('*').strip()}"
+                    caption = f"表{cm.group(1)} {clean_md_text(cm.group(2))}"
                     # Remove caption line from output (already consumed)
                     lines[j] = ""
 
@@ -243,7 +296,7 @@ def build_paper(md_path, output_path):
         # FIGURE: [FIGURE: path | caption]
         fm = re.match(r"\[FIGURE:\s*(.+?)\s*\|\s*(.+?)\]", line)
         if fm:
-            fname = fm.group(1).strip(); cap_text = fm.group(2).strip()
+            fname = fm.group(1).strip(); cap_text = clean_md_text(fm.group(2))
             if os.path.exists(fname):
                 fig_n += 1
                 p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -274,22 +327,20 @@ def build_paper(md_path, output_path):
                 else:
                     r = p.add_run(f"${seg}$"); set_font(r, 10)
             else:
-                # Text segment - further split by **...** for bold
-                bold_parts = seg.split("**")
-                for bi, bp in enumerate(bold_parts):
-                    if bp:
-                        r = p.add_run(bp)
-                        set_font(r, 12, bold=(bi % 2 == 1))
+                add_markdown_runs(p, seg, 12)
         i += 1
 
     # Content length check
     all_text = " ".join(p.text.strip() for p in doc.paragraphs if p.text.strip())
     chars = len(all_text)
-    MIN_CHARS = 15000
-    print(f"\n[CHECK] Total chars: {chars} (min {MIN_CHARS})")
-    if chars < MIN_CHARS:
-        print(f"  HARD FAIL: {chars} < {MIN_CHARS}. Expand content.")
+    HARD_MIN_CHARS = 9000
+    print(f"\n[CHECK] Total chars: {chars} | source substance: {source_chars}")
+    print(f"        hard minimum {HARD_MIN_CHARS}; no artificial upper/target length")
+    if chars < HARD_MIN_CHARS:
+        print(f"  HARD FAIL: {chars} < {HARD_MIN_CHARS}. The draft is too thin to submit.")
+        print("  Expand with derivations, baseline comparison, robustness, figure interpretation, and error analysis.")
         return None
+    print("  PASS: content clears the minimum. Do not pad; let the problem depth determine final length.")
 
     doc.save(output_path)
     pages = chars / 900

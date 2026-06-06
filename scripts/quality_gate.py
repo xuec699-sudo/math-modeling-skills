@@ -938,14 +938,11 @@ def model_formulation_gate(doc_or_text, problem_count=3):
         issues.append("FAIL: 存在疑似未定义变量。所有含'='的公式行必须有变量解释")
         score -= 10
     
-    # === CHECK 7: Content length (10 pts) ===
+    # === CHECK 7: Content length floor (10 pts) ===
     text_chars = len(text)
-    if text_chars < 10000:
-        issues.append(f"FAIL: 内容过少 ({text_chars}字)，模型建立无法充分展开。目标: 15000-20000字")
+    if text_chars < 9000:
+        issues.append(f"HARD FAIL: 内容过少 ({text_chars}字)，模型建立无法充分展开。最低要求: 9000字")
         score -= 20
-    elif text_chars > 30000:
-        issues.append(f"WARNING: 内容过多 ({text_chars}字)，建议精简至20000字以内（约18-20页）")
-        score -= 5
     
     passed = score >= 65 and not any('HARD FAIL' in i for i in issues)
     
@@ -964,7 +961,8 @@ SECTION_LENGTH_STANDARDS = {
     'appendix':        {'min_chars': 500,  'max_chars': 1500,  'target_pages': 1.5},
 }
 
-# Total target: 15000-22000 chars, 18-22 pages
+# Total length has a hard floor only: >=9000 substantive chars.
+# Do not pad to chase an artificial upper/target length.
 # Model Building CORE section: 6000-10000 chars (>=35% of total)
 # IRON RULE: model building section MUST exist and be the largest section
 

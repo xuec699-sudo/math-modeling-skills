@@ -83,7 +83,10 @@ PAPER GENERATION - MANDATORY WORKFLOW (READ FIRST)
 - Use [FIGURE: filename.png | Figure X Title] for figures (Chinese title for CUMCM/51MCM, English for MCM/ICM)
 - Table caption: put "**表N 标题**" on the line BEFORE the table (or [表题] placeholder appears)
 - Table body: use standard Markdown | col1 | col2 | then |---|---|
-- Target: 15,000-22,000 Chinese characters (18-22 pages)
+- Hard minimum: 9,000 substantive Chinese characters. There is no artificial upper/target length.
+- Let the final length follow the problem depth, data volume, derivations, experiments, and result interpretation.
+- If under the hard minimum, expand only evidence-bearing content: derivations, baseline comparison, robustness/sensitivity, error analysis, data preprocessing details, and figure/table D-A-C interpretation.
+- FORBIDDEN: padding with generic background, repeated problem statements, empty "significance" prose, or unsupported claims just to reach a character count.
 - Each sub-problem model chapter MUST have >= 2,000 chars
 - Each sub-problem MUST have >= 3 equations
 
@@ -95,13 +98,16 @@ This ONE command handles ALL formatting automatically (including #### heading cl
 - All LaTeX equations become Word native OMML (editable, NOT pictures)
 - All [FIGURE:] placeholders become embedded PNG images with captions
 - All markdown tables become CUMCM three-line tables
-- Content length check: under 15,000 chars = HARD FAIL, no DOCX generated
+- Content length check: under 9,000 chars = HARD FAIL; 9,000+ chars = PASS with no artificial length target
+- Markdown cleanup: bold/italic markers, list bullets, blockquotes, inline code, and links are stripped before DOCX output
 - Fonts: SimSun body + SimHei headings + Times New Roman English
 - Page: A4, 2.54cm/3.17cm margins
 
-### Step 3: If HARD FAIL, expand and retry
+### Step 3: If HARD FAIL, expand with evidence
 - Do NOT bypass with Pandoc, python-docx, or manual scripts
-- Expand model chapters until content >= 15,000 chars
+- If HARD FAIL (<9,000 chars), expand before delivery.
+- Expand model chapters only with traceable content: formula derivation, algorithm steps, baseline results, sensitivity analysis, uncertainty/error discussion, and figure/table interpretation.
+- Never add filler merely to satisfy a character count.
 - Retry build_docx.py until it passes
 
 ### FORBIDDEN PATHS (DO NOT USE)
@@ -685,7 +691,9 @@ metadata:
 - Use `[FIGURE: filename.png | 图X Title]` for figures
 - Table caption: put "**表N 标题**" on the line BEFORE the table body
 - Table body: use standard Markdown `| col1 | col2 |` then `|---|---|`
-- Target: **15,000-22,000 Chinese characters** (18-22 pages)
+- Hard minimum: **9,000 substantive Chinese characters**. There is no artificial upper/target length.
+- Let the final length follow the problem depth, data volume, derivations, experiments, and result interpretation.
+- If below the hard minimum, expand with derivation, baseline comparison, robustness, error analysis, and figure/table interpretation only.
 - Each sub-problem model chapter MUST have >= 2,000 chars
 
 ### Step 2: Generate DOCX with build_docx.py (NO EXCEPTIONS)
@@ -696,11 +704,11 @@ This ONE command handles:
 - All `$...$` → Word native OMML equations (NOT pictures, NOT plain text)
 - All `[FIGURE:]` → embedded PNG images with captions
 - All markdown tables → CUMCM three-line tables
-- Content length check: **< 15,000 chars = HARD FAIL, no DOCX generated**
+- Content length check: **< 9,000 chars = HARD FAIL; 9,000+ chars = PASS with no artificial length target**
 
-### Step 3: If HARD FAIL, expand and retry
+### Step 3: If HARD FAIL, expand with evidence
 - Do NOT bypass with Pandoc, python-docx, or manual scripts
-- Expand model chapters until content >= 15,000 chars
+- Expand model chapters with traceable modeling content, not filler.
 - Retry `build_docx.py` until it passes
 
 ### FORBIDDEN PATHS
@@ -795,7 +803,7 @@ ef{} 正确解析）
  → Word native OMML equations (latex2mathml → mathml2omml)
 2. All `[FIGURE: file.png | caption]` → embedded images with captions
 3. All markdown tables → three-line tables (CUMCM standard)
-4. Content length check: < 15,000 chars → **HARD FAIL, DOCX not generated**
+4. Content length check: < 9,000 substantive chars → **HARD FAIL, DOCX not generated**; 9,000+ chars → PASS
 5. Font setup: SimSun body + SimHei headings + Times New Roman English
 6. Page setup: A4, 2.54cm/3.17cm margins
 
@@ -862,18 +870,18 @@ If your paper has more solution steps than model formulation, you have a problem
 
 ### Content Length Standard (v4.0)
 
-Target: **15,000-22,000 characters, 18-22 pages**
+Hard floor: **9,000 substantive characters**. No artificial upper/target length; write as much as the modeling evidence requires.
 
-| Section | Min chars | Max chars | Target pages | Notes |
-|---------|-----------|-----------|-------------|-------|
-| Abstract | 500 | 1,000 | 0.8 | Bilingual for MCM/ICM |
-| Problem Restatement | 800 | 1,500 | 1.5 | Background + restated problem |
-| Problem Analysis | 2,000 | 3,500 | 3.0 | Data exploration, flow diagram |
-| Assumptions + Symbols | 500 | 1,000 | 1.0 | Each assumption justified |
-| **Model Building (CORE)** | **8,000** | **12,000** | **9.0** | Formal math + derivation (MIN 3 eqs/sub-problem) |
-| Results + Verification | 1,000 | 2,500 | 2.0 | Tables/figures + interpretation |
-| Model Evaluation | 800 | 2,000 | 1.5 | Sensitivity + robustness |
-| References + Appendix | 500 | 1,500 | 1.5 | Code snippets optional |
+| Section | Min chars | Reference depth | Notes |
+|---------|-----------|-----------------|-------|
+| Abstract | 500 | concise dense summary | Bilingual for MCM/ICM |
+| Problem Restatement | 800 | enough to restate each task | Background + restated problem |
+| Problem Analysis | 2,000 | data exploration + flow diagram | Data exploration, flow diagram |
+| Assumptions + Symbols | 500 | assumptions justified, symbols complete | Each assumption justified |
+| **Model Building (CORE)** | **6,000** | largest section by substance | Formal math + derivation (MIN 3 eqs/sub-problem) |
+| Results + Verification | 1,000 | tables/figures + interpretation | Tables/figures + interpretation |
+| Model Evaluation | 800 | sensitivity + robustness | Sensitivity + robustness |
+| References + Appendix | 500 | only necessary support material | Code snippets optional |
 
 **Model Building MUST occupy >= 35% of total content. Below 30% = HARD FAIL.**
 
@@ -961,7 +969,7 @@ Before paper write stage, `quality_gate.py model_formulation` runs automatically
 - No symbol table present
 - Missing formal mathematical formulation (equations/governing laws)
 - Solution text >> model text (ratio > 1.5:1)
-- Content < 12,000 chars (too short for proper exposition)
+- Content < 9,000 substantive chars (too short for proper exposition)
 - Model building section < 30% of total
 
 **FAIL (significant penalty):**
@@ -970,7 +978,7 @@ Before paper write stage, `quality_gate.py model_formulation` runs automatically
 - Model assumptions < 3
 
 **WARNING:**
-- Content < 15,000 chars (on the short side)
+- Content clears 9,000 chars but lacks derivations, robustness, or figure/table interpretation
 - Model building 30-35% of total (borderline)
 - No formula derivation path for physics models
 
@@ -1100,7 +1108,7 @@ and methodological inspiration. The agent should identify: (a) paper structure,
   → [model_N_build]           → (per sub-problem, respects dependency_graph)
   → [model_N_verify]          → Checkpoint ③ (per sub-problem, MANDATORY)
   → [sensitivity_analysis]    → Checkpoint ④
-  → [content_assembly]        → Checkpoint ⑤ (build_docx.py, HARD FAIL if <15,000 chars)
+  → [content_assembly]        → Checkpoint ⑤ (build_docx.py, HARD FAIL if <9,000 substantive chars)
   → [integrity_gate]          → (7-class academic integrity checklist)
   → [paper_review]            → (5-reviewer panel: methodology + statistical + domain + DA + EIC)
   → [docx_render_qa]          → (iterative: render → inspect → fix, repeat until flawless)
@@ -1119,7 +1127,7 @@ and methodological inspiration. The agent should identify: (a) paper structure,
 | `model_N_build` | Select algorithm, derive math, implement code, output results | 10-15 min each |
 | `model_N_verify` | Run quality_gate.py, self-verify, sensitivity per problem | 5 min each |
 | `sensitivity_analysis` | Cross-model sensitivity, robustness checks | 10 min |
-| `content_assembly` | Write Markdown draft → build_docx.py → verify 15,000+ chars + OMML formulas | 20-30 min |
+| `content_assembly` | Write Markdown draft → build_docx.py → verify 9,000+ substantive chars + OMML formulas | 20-30 min |
 | `integrity_gate` | 7-class academic integrity checklist (citations, data, stats, consistency) | 5 min |
 | `paper_review` | Independent 5-reviewer panel review | 10-15 min |
 | `docx_render_qa` | Open DOCX in Word, verify OMML formulas render, check page count 18-22 | 10-15 min |
@@ -1518,7 +1526,7 @@ math-modeling-contest/
 - **build_docx.py**: Added `[FIGURE: file.png | caption]` placeholder handler with automatic image embedding via `add_picture()`.
 
 ### New Enforcement
-- **build_docx.py**: Added HARD FAIL content length check before `doc.save()`. Papers with < 15,000 chars are rejected with a clear error message showing current vs required length. Estimated page count is reported on success.
+- **build_docx.py**: Added HARD FAIL content length floor before `doc.save()`. Papers with < 9,000 substantive chars are rejected with a clear error message; 9,000+ chars pass without an artificial upper/target length.
 - **build_docx.py**: Section word count reporting (total chars, model section chars) printed before save.
 
 ### Quality of Life
@@ -1544,8 +1552,8 @@ math-modeling-contest/
 
 | Symptom | Cause | Fix |
 |---------|-------|------|
-| `Result: None` with no errors | Content < 15000 chars or missing images | Run `verify_build.py` for detailed report |
-| `HARD FAIL: chars < 15000` | Paper too short | Expand model derivation sections (target: 2000+ chars per sub-problem) |
+| `Result: None` with no errors | Content < 9000 chars or missing images | Run `verify_build.py` for detailed report |
+| `HARD FAIL: chars < 9000` | Paper too short | Expand evidence-bearing model derivation, robustness, and result-analysis sections |
 | No output at all | stdout encoding crash | Ensure `PYTHONIOENCODING=utf-8` or use the built-in fix |
 
 ### Pre-Build Checklist

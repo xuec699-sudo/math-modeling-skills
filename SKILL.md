@@ -29,10 +29,36 @@ Use Manual mode when the user wants checkpoint control. Use Autopilot only when 
 
 Minimum paper content rule: require at least 9,000 substantive Chinese characters. There is no artificial upper limit and no fixed character-count target. Never add filler to chase length.
 
-## 
-### Format Standard (v5.2.2 -- based on 建模竞赛A题_最终论文.docx)
+## Canonical Workflow
 
-All generated papers MUST follow the reference template at 	emplates/2026建模竞赛A题_最终论文.docx:
+This section is the source of truth for using the skill. If later legacy notes conflict with this section, follow this section first.
+
+1. Intake: identify contest type, uploaded files, requested mode, and whether this is a new paper or a DOCX revision.
+2. G1 Problem Parsed: split every subproblem into inputs, outputs, constraints, objective functions, evaluation metrics, and dependencies.
+3. G2 Method Validated: provide at least two candidate methods for each subproblem, then run a minimal PoC or baseline before committing to a complex model.
+4. G3 Code Reviewed: implement reproducible scripts with fixed seeds, explicit input/output paths, and traceable result files.
+5. G4 Results Frozen: freeze all numbers, tables, and figures before writing. If data or code changes, refreeze the results before editing the paper.
+6. G5 Paper Section Ready: write the Markdown draft only after verified results exist. Every figure/table should follow the D-A-C rule: describe, analyze, conclude.
+7. G6 Audit Layer Passed: check citations, data provenance, formulas, statistics, consistency, unsupported claims, and Word rendering.
+8. Deliver: generate DOCX with `scripts/build_docx.py`, then verify editable OMML formulas, figures, tables, captions, layout, and Markdown cleanup.
+
+Core routing rules:
+
+- New contest solution: Markdown draft -> `scripts/build_docx.py` -> DOCX.
+- Existing DOCX revision: use `python-docx` for in-place editing; do not rebuild the whole paper unless the user explicitly asks.
+- Length: 9,000 substantive Chinese characters is a hard minimum only. There is no upper limit and no target length. Expand only with evidence-bearing derivations, baselines, sensitivity analysis, error analysis, preprocessing details, and figure/table interpretation.
+- Language and labels: CUMCM/51MCM use Chinese; MCM/ICM use English.
+- Figures: prefer the Nature-style figure logic from `nature-figure`: define the communication goal first, choose a clean multi-panel structure when useful, keep labels readable, and make every visual support a concrete claim.
+
+## Contributor Cleanup Note
+
+Keep `SKILL.md` focused on operational rules. Move long examples, formatting references, and contest-specific appendices into `references/` when possible. Avoid duplicated frontmatter, repeated workflow blocks, or garbled text in newly added sections.
+
+## Format Standard
+
+Based on `templates/2026建模竞赛A题_最终论文.docx`.
+
+All generated papers MUST follow the reference template:
 
 | Element | Font | Size | Weight | Align |
 |---------|------|:----:|:------:|:-----:|

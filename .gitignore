@@ -16,6 +16,7 @@ verifications/
 latex/
 
 # Build outputs
+build/
 build_log.txt
 test_output.txt
 

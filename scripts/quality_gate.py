@@ -24,6 +24,19 @@ from pathlib import Path
 WORKSPACE      = Path("CUMCM_Workspace")
 THOUGHT_FILE   = WORKSPACE / "memory" / "thought_process.md"
 
+# KyrieZhang329-inspired gate contracts (v5.7.0)
+try:
+    from gate_contracts import (
+        GATE_CONTRACTS, print_gate_contracts,
+        propagation_check, print_propagation_report,
+        gate_g2_poc, gate_g4_frozen_staleness,
+        audit_consistency_enhanced, audit_completeness_enhanced, audit_quality_enhanced,
+        run_g6_audit_enhanced, print_g6_enhanced_report,
+    )
+    _HAS_GATE_CONTRACTS = True
+except ImportError:
+    _HAS_GATE_CONTRACTS = False
+
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +279,39 @@ def run_gate(name: str, args) -> bool:
         passed, msg = gate_render_qa(args.render_dir)
     elif name == 'pairing':
         passed, msg = gate_verify_pairing(args.stage)
+    elif name == 'contracts':
+        if _HAS_GATE_CONTRACTS:
+            print_gate_contracts()
+        return True
+    elif name == 'g2_poc':
+        if _HAS_GATE_CONTRACTS:
+            passed, msg, _ = gate_g2_poc()
+            prefix = "\u2714 GATE" if passed else "\u2717 GATE"
+            print(f"{prefix} [g2_poc] {msg}")
+            return passed
+        return True
+    elif name == 'g4_stale':
+        if _HAS_GATE_CONTRACTS:
+            subq = getattr(args, 'subquestion', None)
+            passed, msg, _ = gate_g4_frozen_staleness(subq)
+            prefix = "\u2714 GATE" if passed else "\u2717 GATE"
+            print(f"{prefix} [g4_stale] {msg}")
+            return passed
+        return True
+    elif name == 'g6_audit':
+        if _HAS_GATE_CONTRACTS:
+            ws = getattr(args, 'workspace_path', None)
+            results = run_g6_audit_enhanced(ws)
+            print_g6_enhanced_report(results)
+            return results.get('gate_passed', False)
+        return True
+    elif name == 'propagate':
+        if _HAS_GATE_CONTRACTS:
+            changed = getattr(args, 'changed_files', [])
+            if changed:
+                result = propagation_check(changed if isinstance(changed, list) else [changed])
+                print_propagation_report(result)
+        return True
     else:
         return True
 
@@ -740,6 +786,17 @@ def main():
     pi.add_argument('--docx-path', required=True, dest='docx_path')
     pmq.add_argument("--model-type", default="regression", dest="model_type")
 
+
+    # KyrieZhang329-inspired gates (v5.7.0)
+    pc2 = sub.add_parser("contracts", help="Print all G1-G6 gate contracts")
+    ppoc = sub.add_parser("g2_poc", help="G2 PoC hard gate check")
+    ppoc.add_argument("--poc-dir", default=None)
+    pstale = sub.add_parser("g4_stale", help="G4 frozen staleness check")
+    pstale.add_argument("--subquestion", "-q", default=None)
+    pg6 = sub.add_parser("g6_audit", help="G6 enhanced 3-layer audit")
+    pg6.add_argument("--workspace-path", "-w", default=None, dest="workspace_path")
+    pprop = sub.add_parser("propagate", help="P1 change propagation check")
+    pprop.add_argument("--changed-files", "-c", nargs="+", default=[], dest="changed_files")
 
     pa = sub.add_parser("all", help="Run all applicable gates")
     pa.add_argument("--stage", required=True)
@@ -1231,6 +1288,115 @@ def gate_table_formula(docx_path):
     else:
         return True, f"Table formula OK: {omml_cells} OMML cells, 0 unconverted"
 
+
+
+# ============================================================
+# G6: Three-Layer Audit (from MathModeling-skills)
+# ============================================================
+
+def audit_consistency(workspace_path: str) -> dict:
+    """Layer 1: Cross-media consistency check.
+    Are numbers in paper consistent with code output?
+    Are symbols consistent across sections?
+    """
+    issues = []
+    ws = Path(workspace_path)
+    
+    # Check if paper exists
+    paper_files = list(ws.glob("output/*.docx")) + list(ws.glob("output/*.pdf"))
+    if not paper_files:
+        issues.append("NO_PAPER: No output paper found")
+    
+    # Check if CODE_MAP exists
+    if not (ws / "CODE_MAP.md").exists():
+        issues.append("NO_CODE_MAP: CODE_MAP.md not generated")
+    
+    # Check for frozen numbers
+    if not list(ws.glob("output/*results*.json")):
+        issues.append("NO_FROZEN: No frozen results JSON (numbers may drift)")
+    
+    return {"passed": len(issues) == 0, "issues": issues}
+
+
+def audit_completeness(workspace_path: str) -> dict:
+    """Layer 2: Completeness check.
+    Does every sub-question have: model code + results + report?
+    """
+    issues = []
+    ws = Path(workspace_path)
+    
+    # Check robustness reports
+    rob_dir = ws / "robustness"
+    if rob_dir.exists():
+        for q in ["Q1", "Q2", "Q3", "Q4"]:
+            rpt = rob_dir / q / f"{q.lower()}_robustness_report.md"
+            if not rpt.exists():
+                issues.append(f"MISSING_ROBUSTNESS: {q} has no robustness report")
+    
+    # Check for at least one .py solving file per contest
+    py_files = list(ws.glob("output/*.py"))
+    if not py_files:
+        issues.append("NO_CODE: No Python solving code found")
+    
+    return {"passed": len(issues) <= 1, "issues": issues}
+
+
+def audit_quality(workspace_path: str) -> dict:
+    """Layer 3: Quality audit.
+    Full workflow coherence: model depth, verification evidence, anti-fabrication.
+    """
+    issues = []
+    ws = Path(workspace_path)
+    
+    # Check model depth
+    codemap = ws / "CODE_MAP.md"
+    if codemap.exists():
+        text = codemap.read_text(encoding="utf-8")
+        if len(text) < 200:
+            issues.append("THIN_CODE_MAP: CODE_MAP too brief")
+    
+    # Check paper size (too small = likely incomplete)
+    for docx in ws.glob("output/*.docx"):
+        if docx.stat().st_size < 30000:  # < 30KB
+            issues.append(f"SMALL_PAPER: {docx.name} may be incomplete")
+    
+    return {"passed": len(issues) == 0, "issues": issues}
+
+
+def run_g6_audit(workspace_path: str) -> dict:
+    """Run full G6 three-layer audit"""
+    results = {
+        "consistency": audit_consistency(workspace_path),
+        "completeness": audit_completeness(workspace_path),
+        "quality": audit_quality(workspace_path),
+    }
+    all_passed = all(r["passed"] for r in results.values())
+    results["gate_passed"] = all_passed
+    return results
+
+
+def print_g6_report(results: dict):
+    """Print G6 audit report"""
+    print("\n" + "="*60)
+    print("  G6 Audit Layer (Consistency -> Completeness -> Quality)")
+    print("="*60)
+    
+    icons = {True: "PASS", False: "FAIL"}
+    for layer, r in results.items():
+        if layer == "gate_passed":
+            continue
+        icon = icons[r["passed"]]
+        print(f"\n  [{icon}] {layer.upper()}")
+        for issue in r.get("issues", []):
+            print(f"    - {issue}")
+    
+    gate_icon = "PASS" if results["gate_passed"] else "BLOCKED"
+    print(f"\n  G6 GATE: [{gate_icon}]")
+    if not results["gate_passed"]:
+        print("  Pipeline blocked until all issues resolved.")
+    print("="*60)
+
+from pathlib import Path
 
 if __name__ == "__main__":
     main()

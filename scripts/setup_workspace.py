@@ -1,33 +1,19 @@
 ﻿#!/usr/bin/env python3
 """
-Math Modeling Contest - Workspace Setup
-Creates standardized contest workspace structure.
+Math Modeling Contest - Workspace Setup (v2)
+Creates isolated contest workspace per contest under contests/
 
 Usage:
-  python scripts/setup_workspace.py                  # CUMCM (国赛) mode
-  python scripts/setup_workspace.py --mode mcm       # MCM/ICM (美赛) mode
+  python scripts/setup_workspace.py --name "APMCM2025_A_农业灌溉"
+  python scripts/setup_workspace.py --name "MCM2026_B" --mode mcm
 """
 
-import argparse
-import json
-import shutil
+import argparse, json, shutil, sys
 from datetime import datetime
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_ROOT = SCRIPT_DIR.parent
-
-ROOT = Path("CUMCM_Workspace")
-
-DIRS = [
-    ROOT / "data",
-    ROOT / "src" / "models",
-    ROOT / "src" / "verifications",
-    ROOT / "latex" / "images",
-    ROOT / "memory",
-    ROOT / "state",
-    ROOT / "output",
-]
 
 PENDING_CUMCM = [
     "Phase 1: Problem analysis & literature research",
@@ -49,26 +35,43 @@ PENDING_MCM = [
 ]
 
 
-def setup(mode: str = "cumcm"):
-    is_mcm = mode.lower() == "mcm"
-    label = "MCM/ICM" if is_mcm else "CUMCM"
+def setup(name: str, mode: str = "cumcm", base_dir: Path = None):
+    if not name:
+        print("[ERROR] --name is required.")
+        sys.exit(1)
 
-    print("=" * 58)
-    print(f"  {label} Math Modeling Contest - Workspace Setup")
-    if is_mcm:
-        print("  Mode: MCM/ICM (English paper, mcmthesis)")
-    else:
-        print("  Mode: CUMCM (Chinese paper)")
-    print("=" * 58)
+    if base_dir is None:
+        base_dir = Path("contests")
+
+    contest_root = base_dir / name
+    is_mcm = mode.lower() == "mcm"
+    label = "MCM/ICM" if is_mcm else "CUMCM/APMCM"
+
+    DIRS = [
+        contest_root / "data",
+        contest_root / "src" / "models",
+        contest_root / "src" / "verifications",
+        contest_root / "latex" / "images",
+        contest_root / "memory",
+        contest_root / "state",
+        contest_root / "output",
+        contest_root / "output" / "figures",
+        contest_root / "output" / "images",
+    ]
+
+    print("=" * 60)
+    print(f"  {label} Workspace: {name}")
+    print("=" * 60)
 
     for d in DIRS:
         d.mkdir(parents=True, exist_ok=True)
         print(f"  [create] {d}")
 
     # iteration.json
-    iteration_file = ROOT / "memory" / "iteration.json"
+    iteration_file = contest_root / "memory" / "iteration.json"
     if not iteration_file.exists():
         state = {
+            "contest_name": name,
             "title": "",
             "mode": mode.lower(),
             "phase": "init",
@@ -76,7 +79,6 @@ def setup(mode: str = "cumcm"):
             "problems": [],
             "models": [],
             "iterations": 0,
-            "contest_type": "",
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "completed_tasks": [],
@@ -85,58 +87,69 @@ def setup(mode: str = "cumcm"):
         iteration_file.write_text(
             json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-        print(f"  [create] {iteration_file}")
+        print(f"  [create] memory/iteration.json")
 
-    # LaTeX template
-    if is_mcm:
-        template_src = SKILL_ROOT / "templates" / "mcm_template.tex"
-        template_dst = ROOT / "latex" / "main.tex"
-        if template_src.exists() and not template_dst.exists():
-            shutil.copy(template_src, template_dst)
-            print(f"  [copy] MCM template -> {template_dst}")
-        elif not template_dst.exists():
-            print(f"  [warn] Template {template_src} not found, place manually")
-            template_dst.write_text("% MCM/ICM Paper Template\n", encoding="utf-8")
-    else:
-        template_src = SKILL_ROOT / "templates" / "cumcm_template.tex"
-        template_dst = ROOT / "latex" / "main.tex"
-        if template_src.exists() and not template_dst.exists():
-            shutil.copy(template_src, template_dst)
-            print(f"  [copy] CUMCM template -> {template_dst}")
-        elif not template_dst.exists():
-            print(f"  [warn] Template {template_src} not found, place manually")
-            template_dst.write_text("% CUMCM Paper Template\n", encoding="utf-8")
-
-    # Memory files
-    thought_file = ROOT / "memory" / "thought_process.md"
-    if not thought_file.exists():
-        header = "# Thought Process Log\n\n" if is_mcm else "# 思考过程记录\n\n"
-        thought_file.write_text(
-            header + "> Workspace initialized. Awaiting problem input.\n",
+    # README
+    readme = contest_root / "README.md"
+    if not readme.exists():
+        readme.write_text(
+            f"# {name}\n\n"
+            f"- Contest: {name}\n"
+            f"- Mode: {mode}\n"
+            f"- Created: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+            f"## 目录\n\n"
+            f"| 目录 | 用途 |\n|------|------|\n"
+            f"| `data/` | 赛题数据 |\n"
+            f"| `src/` | 模型代码 |\n"
+            f"| `latex/` | LaTeX 源码 |\n"
+            f"| `output/` | 论文输出 (DOCX/PDF) |\n"
+            f"| `output/figures/` | 图表 |\n"
+            f"| `output/images/` | 插图 |\n"
+            f"| `memory/` | 思考记录 |\n"
+            f"| `state/` | 流水线状态 |\n",
             encoding="utf-8"
         )
-        print(f"  [create] {thought_file}")
+        print(f"  [create] README.md")
 
-    eval_file = ROOT / "memory" / "evaluation_log.md"
-    if not eval_file.exists():
-        header = "# Feedback & Evaluation Log\n\n" if is_mcm else "# 用户反馈评价记录\n\n"
-        eval_file.write_text(header + "(No feedback yet)\n", encoding="utf-8")
-        print(f"  [create] {eval_file}")
+    # LaTeX template
+    template_src = (
+        SKILL_ROOT / "templates" / "mcm_template.tex" if is_mcm
+        else SKILL_ROOT / "templates" / "cumcm_template.tex"
+    )
+    template_dst = contest_root / "latex" / "main.tex"
+    if template_src.exists() and not template_dst.exists():
+        shutil.copy(template_src, template_dst)
+        print(f"  [copy] {template_src.name} -> latex/main.tex")
 
-    # src/__init__.py
-    init_py = ROOT / "src" / "__init__.py"
-    if not init_py.exists():
-        init_py.write_text("# Math modeling source package\n", encoding="utf-8")
+    # Init files
+    (contest_root / "memory" / "thought_process.md").write_text(
+        "# 思考过程记录\n\n> Workspace initialized.\n", encoding="utf-8"
+    )
+    (contest_root / "memory" / "evaluation_log.md").write_text(
+        "# 评价记录\n\n(暂无)\n", encoding="utf-8"
+    )
+    (contest_root / "src" / "__init__.py").write_text(
+        "# Math modeling source\n", encoding="utf-8"
+    )
+
+    # Copy EDA template
+    eda_src = SKILL_ROOT / "templates" / "eda_template.py"
+    eda_dst = contest_root / "src" / "eda_preprocess.py"
+    if eda_src.exists():
+        shutil.copy(eda_src, eda_dst)
+        print(f"  [copy] eda_template.py -> src/eda_preprocess.py")
 
     print()
-    print(f"  Workspace ready! Mode: {'MCM/ICM (English)' if is_mcm else 'CUMCM (Chinese)'}")
-    print(f"  Directory: {ROOT.resolve()}")
-    print("=" * 58)
+    print(f"  Workspace ready: {contest_root.resolve()}")
+    print(f"  Put contest data in: {contest_root / 'data'}")
+    print(f"  Start EDA: python src/eda_preprocess.py")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["cumcm", "mcm"], default="cumcm",
-                        help="Contest mode: cumcm (国赛) or mcm (美赛)")
+    parser = argparse.ArgumentParser(description="Setup contest workspace")
+    parser.add_argument("--name", required=True, help="Contest name")
+    parser.add_argument("--mode", choices=["cumcm", "mcm"], default="cumcm")
+    parser.add_argument("--root", default="contests", help="Base directory")
     args = parser.parse_args()
-    setup(mode=args.mode)
+    setup(name=args.name, mode=args.mode, base_dir=Path(args.root))

@@ -25,6 +25,13 @@ DEFAULT_MAIN = WORKSPACE / "latex" / "main.tex"
 
 def find_latex_engine() -> str:
     """Find available LaTeX engine. Prefer xelatex for Unicode support."""
+    # Known good engine paths (verified on this system)
+    KNOWN_PATHS = [
+        r"C:\Users\CX\AppData\Local\Programs\MiKTeX\miktex\bin\x64\pdflatex.exe",
+    ]
+    for path in KNOWN_PATHS:
+        if os.path.exists(path):
+            return path
     for engine in ["xelatex", "pdflatex", "lualatex"]:
         if shutil.which(engine):
             return engine
@@ -58,7 +65,9 @@ def compile_pdf(main_file: str, engine: str = "", bibtex: bool = False) -> bool:
         # Use -interaction=nonstopmode to prevent interactive prompts
         result = subprocess.run(
             [engine,
+             "-synctex=1",
              "-interaction=nonstopmode",
+             "-file-line-error",
              "-output-directory", str(tex_dir),
              str(main_path)],
             capture_output=True,
@@ -91,6 +100,16 @@ def compile_pdf(main_file: str, engine: str = "", bibtex: bool = False) -> bool:
         shutil.copy(pdf_src, pdf_dst)
         print(f"[compile] SUCCESS: PDF -> {pdf_dst}")
         print(f"[compile] Size: {pdf_dst.stat().st_size / 1024:.1f} KB")
+
+        # Auto-cleanup compile artifacts
+        for ext in [".aux", ".log", ".toc", ".synctex.gz", ".out"]:
+            artifact = tex_dir / f"{tex_name}{ext}"
+            if artifact.exists():
+                try:
+                    os.remove(str(artifact))
+                except:
+                    pass
+
         return True
     else:
         print(f"[compile] ERROR: PDF not generated at {pdf_src}")

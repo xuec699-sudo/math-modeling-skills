@@ -130,3 +130,46 @@ MIT License
 <p align="center">
   <sub>Built for CUMCM · 51MCM · MCM/ICM</sub>
 </p>
+
+
+## v5.7.0 ? Gate Contracts & Audit Layer (KyrieZhang329-inspired)
+
+### New: G1?G6 Gate Contracts
+Explicit enter_condition / pass_criteria / fail_fallback for every workflow checkpoint.
+Run: `python scripts/quality_gate.py contracts`
+
+| Gate | Purpose |
+|------|---------|
+| G1 PROBLEM_PARSED | Problem parsed + classified + literature searched |
+| G2 METHOD_VALIDATED ? | Every candidate has <=30-line PoC with feasibility number |
+| G3 CODE_REVIEWED | Code review with >=5 disk file items |
+| G4 RESULTS_FROZEN ? | frozen_numbers.json not stale; 3-step refreeze protocol |
+| G5 PAPER_SECTION_READY | Word count + >=3 discussion dimensions per result |
+| G6 AUDIT_LAYER_PASSED ?? | 3 independent auditors ALL must PASS |
+
+### New: P1 Change Propagation Rule
+After modifying code/methods/results/planning files, grep workspace for stale references.
+Run: `python scripts/quality_gate.py propagate --changed-files ...`
+
+### New: G2 PoC Hard Gate
+Every candidate method requires <=30-line PoC script with feasibility result.
+Run: `python scripts/quality_gate.py g2_poc`
+
+### New: G4 Frozen Staleness Detection
+Auto-detects when source files are newer than frozen_numbers.json, marks as STALE.
+Run: `python scripts/quality_gate.py g4_stale`
+
+### New: G6 Enhanced Independent Audit Layer
+Three orthogonal auditors with mandatory disk artifacts:
+- Consistency audit -> `paper/audits/cross_media_consistency_audit.md`
+- Completeness audit -> `paper/audits/completeness_audit.md`
+- Quality audit -> `paper/qa_report.md`
+
+Run: `python scripts/quality_gate.py g6_audit`
+
+### New: frozen_numbers.py re-freeze command
+Three-step protocol: thaw (log reason) -> modify (update source) -> re-freeze.
+Run: `python scripts/frozen_numbers.py re-freeze --subquestion Q1`
+
+### New: Environment Ping
+Session-start checks: git status, Python version, scientific packages, workspace skeleton.

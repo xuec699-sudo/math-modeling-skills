@@ -185,6 +185,46 @@ def cmd_defrost(args):
     print("[DEFROSTED] {} v{}: {}".format(subquestion, frozen["version"], fields))
 
 
+def cmd_refreeze(args):
+    """Re-freeze after changes: clear STALE status, bump version, write log."""
+    subquestion = args.subquestion
+    freeze_path = get_freeze_path(subquestion)
+
+    if not freeze_path.exists():
+        print("[RE-FREEZE] {}: No freeze exists. Run freeze first.".format(subquestion))
+        sys.exit(1)
+
+    with open(freeze_path, "r", encoding="utf-8") as f:
+        frozen = json.load(f)
+
+    source_dir = args.source or frozen.get("source_dir", "")
+    source_dir = Path(source_dir)
+
+    # Re-compute hashes
+    new_hashes = compute_source_hashes(source_dir)
+    frozen["source_hashes"] = new_hashes
+    frozen["frozen_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    frozen["version"] = frozen.get("version", 0) + 1
+    frozen["status"] = "frozen"
+    frozen.pop("stale_detected_at", None)
+    frozen.pop("stale_reason", None)
+
+    with open(freeze_path, "w", encoding="utf-8") as f:
+        json.dump(frozen, f, indent=2, ensure_ascii=False)
+
+    # Log the re-freeze
+    log_path = get_log_path(subquestion)
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write("\n## Re-Freeze v{} - {}\n".format(frozen["version"], frozen["frozen_at"]))
+        f.write("- Source: {}\n".format(source_dir))
+        f.write("- Hashes: {} files\n".format(len(new_hashes)))
+        f.write("- [OK] Frozen snapshot updated. Paper numbers can be trusted again.\n")
+
+    print("[RE-FROZEN] {} v{}: {}".format(subquestion, frozen["version"], freeze_path))
+    print("  Source hashes: {} files".format(len(new_hashes)))
+    print("  [OK] Snapshot is now CURRENT. Paper numbers trusted.")
+
+
 def cmd_history(args):
     subquestion = args.subquestion
     log_path = get_log_path(subquestion)
@@ -206,8 +246,16 @@ def cmd_status(args):
                 with open(fp, "r", encoding="utf-8") as f:
                     frozen = json.load(f)
                 st = frozen.get("status", "frozen")
-                icon = "[FROZEN]" if st == "frozen" else "[THAWED]"
-                print("  {} {} v{} ({})".format(icon, qdir.name, frozen["version"], frozen["frozen_at"]))
+                if st == "stale":
+                    icon = "[STALE]"
+                    detail = frozen.get("stale_reason", "unknown cause")
+                    print("  {} {} v{} ({}) - {}".format(icon, qdir.name, frozen["version"], frozen["frozen_at"], detail))
+                elif st == "defrosted":
+                    icon = "[THAWED]"
+                    print("  {} {} v{} ({})".format(icon, qdir.name, frozen["version"], frozen["frozen_at"]))
+                else:
+                    icon = "[FROZEN]"
+                    print("  {} {} v{} ({})".format(icon, qdir.name, frozen["version"], frozen["frozen_at"]))
             else:
                 print("  [EMPTY] {}".format(qdir.name))
 
@@ -232,6 +280,10 @@ def main():
     ph = sub.add_parser("history")
     ph.add_argument("--subquestion", "-q", required=True)
 
+    prf = sub.add_parser("re-freeze", help="Re-freeze after changes (clear STALE, update hashes)")
+    prf.add_argument("--subquestion", "-q", required=True)
+    prf.add_argument("--source", "-s")
+
     ps = sub.add_parser("status")
 
     args = parser.parse_args()
@@ -243,6 +295,8 @@ def main():
         cmd_defrost(args)
     elif args.command == "history":
         cmd_history(args)
+    elif args.command == "re-freeze":
+        cmd_refreeze(args)
     elif args.command == "status":
         cmd_status(args)
     else:

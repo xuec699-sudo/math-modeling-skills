@@ -5,7 +5,7 @@
 <h1 align="center">Math Modeling Contest Agent</h1>
 
 <p align="center">
-  <strong>v5.7.1</strong> · 工业级数学建模竞赛全流程 Agent
+  <strong>v5.8.0</strong> · 工业级数学建模竞赛全流程 Agent
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
   <img alt="CUMCM" src="https://img.shields.io/badge/竞赛-国赛%20CUMCM-1A6FC4">
   <img alt="MCM" src="https://img.shields.io/badge/竞赛-美赛%20MCM%2FICM-E28E2C">
   <img alt="51MCM" src="https://img.shields.io/badge/竞赛-五一赛%2051MCM-2E9E44">
-  <img alt="Version" src="https://img.shields.io/badge/version-5.7.1-blue">
+  <img alt="Version" src="https://img.shields.io/badge/version-5.8.0-blue">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
@@ -212,7 +212,7 @@ python scripts/build_docx.py draft.md output.docx
 
 ```
 math-modeling-contest/
-├── SKILL.md                    # 核心技能定义（45KB）
+├── SKILL.md                    # 精简后的核心执行规则（约 10KB）
 ├── agents/                     # Agent 配置
 ├── scripts/                    # 核心脚本（60+ 个）
 │   ├── pipeline_manager.py     # 管道编排器（30KB）
@@ -231,6 +231,8 @@ math-modeling-contest/
 └── templates/                  # 论文模板（LaTeX + DOCX）
 ```
 
+维护原则：`SKILL.md` 只保留触发后必须执行的核心流程；长示例、算法细节、格式规范和审计清单放在 `references/`，避免主入口过长或重复。
+
 ## 许可证
 
 MIT License
@@ -242,20 +244,20 @@ MIT License
 </p>
 
 
-## v5.7.0 ? Gate Contracts & Audit Layer (KyrieZhang329-inspired)
+## v5.7.0 Gate Contracts & Audit Layer
 
-### New: G1?G6 Gate Contracts
+### New: G1-G6 Gate Contracts
 Explicit enter_condition / pass_criteria / fail_fallback for every workflow checkpoint.
 Run: `python scripts/quality_gate.py contracts`
 
 | Gate | Purpose |
 |------|---------|
 | G1 PROBLEM_PARSED | Problem parsed + classified + literature searched |
-| G2 METHOD_VALIDATED ? | Every candidate has <=30-line PoC with feasibility number |
+| G2 METHOD_VALIDATED | Every candidate has <=30-line PoC with feasibility number |
 | G3 CODE_REVIEWED | Code review with >=5 disk file items |
-| G4 RESULTS_FROZEN ? | frozen_numbers.json not stale; 3-step refreeze protocol |
+| G4 RESULTS_FROZEN | frozen_numbers.json not stale; 3-step refreeze protocol |
 | G5 PAPER_SECTION_READY | Word count + >=3 discussion dimensions per result |
-| G6 AUDIT_LAYER_PASSED ?? | 3 independent auditors ALL must PASS |
+| G6 AUDIT_LAYER_PASSED | 3 independent auditors ALL must PASS |
 
 ### New: P1 Change Propagation Rule
 After modifying code/methods/results/planning files, grep workspace for stale references.

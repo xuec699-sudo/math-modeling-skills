@@ -5,7 +5,7 @@
 <h1 align="center">Math Modeling Contest Agent</h1>
 
 <p align="center">
-  <strong>v5.8.0</strong> · 工业级数学建模竞赛全流程 Agent
+  <strong>v5.8.1</strong> · 工业级数学建模竞赛全流程 Agent
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
   <img alt="CUMCM" src="https://img.shields.io/badge/竞赛-国赛%20CUMCM-1A6FC4">
   <img alt="MCM" src="https://img.shields.io/badge/竞赛-美赛%20MCM%2FICM-E28E2C">
   <img alt="51MCM" src="https://img.shields.io/badge/竞赛-五一赛%2051MCM-2E9E44">
-  <img alt="Version" src="https://img.shields.io/badge/version-5.8.0-blue">
+  <img alt="Version" src="https://img.shields.io/badge/version-5.8.1-blue">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
@@ -35,6 +35,9 @@
 | 能力 | 说明 |
 |---|---|
 | **双模式运行** | Autopilot（全自动管道）或 Manual（人工强制检查点） |
+| **Friendly Mode** | 关键决策用编号选项推进，用户不用手敲命令或编辑 JSON |
+| **三角色协作** | 建模手、编程手、论文手职责分离，交接依赖可追溯 |
+| **状态日志** | 长流程可维护 `state/decision_log.json`，中途恢复不丢上下文 |
 | **六维选题评估** | 从数据可得性、建模难度、创新空间等 6 个维度评估选题 |
 | **L3+ 模型推导深度** | 强制达到工程可复现的推导深度，拒绝"显然可得" |
 | **模型依赖 DAG** | 子模型间的依赖关系可视化为有向无环图 |
@@ -44,6 +47,15 @@
 | **三线表自动排版** | 国赛标准三线表，一键生成 |
 | **分数轨迹追踪** | 每次修改后自动追踪论文质量分数变化 |
 | **实质内容下限** | 9000 字以下硬拦截；9000 字以上按问题复杂度自然展开，不强行凑字数 |
+
+## 设计吸收点
+
+这版参考了两个优秀开源 skill 的思路，但没有复制文本或文件：
+
+- [`handsomeZR-netizen/mathmodel-skill`](https://github.com/handsomeZR-netizen/mathmodel-skill)：吸收“编号问答式 Friendly Mode、状态日志、分层反馈、竞赛特化”的设计思想。
+- [`XiaoMaColtAI/math-modeling-skill`](https://github.com/XiaoMaColtAI/math-modeling-skill)：吸收“三角色协作、算法库索引、Figure Contract、Claim-Evidence 写作”的组织思路。
+
+本项目仍保留自己的主架构：G1-G6 门控、结果冻结、质量审计、`build_docx.py` 原生 Word 生成，以及 9000 实质字符下限。
 
 ## 运行模式
 

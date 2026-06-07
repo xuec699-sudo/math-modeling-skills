@@ -8,8 +8,8 @@ description: >
   execution, model design, reproducible code, figure generation, paper writing,
   DOCX/PDF output, and revision workflows.
 metadata:
-  version: "5.8.0"
-  short-description: Math modeling contest pipeline with G1-G6 gates, reproducible modeling, Nature-style figures, 9000-character content floor, and clean DOCX generation
+  version: "5.8.1"
+  short-description: Math modeling contest pipeline with Friendly Mode, role handoffs, state logging, G1-G6 gates, reproducible modeling, Nature-style figures, and clean DOCX generation
 ---
 
 # Math Modeling Contest Agent
@@ -29,6 +29,20 @@ Before doing any work, decide which route applies.
 
 Manual mode is the default for serious contest work. Autopilot is allowed only when the user explicitly asks for full automatic execution.
 
+## Friendly Mode
+
+For Manual mode, reduce the user's workload. Key decisions should be presented as numbered options, not as requests to edit JSON, run shell commands, or understand the whole pipeline.
+
+Use numbered questions for:
+
+- contest type and problem number
+- available files and missing attachments
+- model route selection
+- whether to refine, continue, or stop at a gate
+- paper route: new Markdown-to-DOCX or in-place DOCX revision
+
+Every numbered decision should include a safe default such as "let the agent decide, recommended". If the user chooses the default, proceed with the most conservative high-quality option and record the decision.
+
 ## One-Sentence Startup Prompt
 
 When a user asks how to invoke the skill, suggest:
@@ -42,6 +56,61 @@ For Chinese users, suggest:
 ```text
 请使用 math-modeling-contest skill 以 Manual checkpoint 模式处理我上传的数学建模赛题。请先读取题目和附件，拆解每一问，检查数据，给每一问提出 2-3 个候选模型，建立问题依赖 DAG，并在我确认路线后再写代码和论文。
 ```
+
+## Collaboration Roles
+
+Keep the work organized as three cooperating roles. They are not separate agents unless the environment supports that; they are responsibility boundaries.
+
+| Role | Owns | Must produce |
+|---|---|---|
+| Modeling lead | problem parsing, assumptions, model choice, formulas, dependency DAG | model contract, method comparison, variable table |
+| Coding lead | data cleaning, reproducible scripts, result tables, figures | runnable code, logs, frozen result artifacts |
+| Paper lead | argument structure, claim-evidence mapping, DOCX/PDF delivery | Markdown draft, DOCX, audit notes |
+
+Role handoff rule: the next role may start only after the previous role leaves enough artifacts for traceability. Paper writing cannot start from memory; it must start from frozen results and a claim-evidence map.
+
+## State And Decision Log
+
+For multi-turn or long contest work, maintain a lightweight state file in the user's workspace when practical:
+
+```text
+state/decision_log.json
+```
+
+Track at least:
+
+- contest type, problem number, mode, current gate, and deadline
+- files received and files still missing
+- model choices accepted/rejected and why
+- frozen result file paths
+- stale downstream artifacts after code/data changes
+- user decisions at Manual checkpoints
+
+Do not ask the user to manually edit this file. Update it yourself when creating or changing artifacts. If no state file exists, summarize the same fields in the chat after each gate.
+
+## Competition Profile
+
+Adjust defaults by competition:
+
+| Competition | Language | Time pressure | Paper emphasis |
+|---|---|---|---|
+| CUMCM | Chinese | 72h style | rigorous modeling, Chinese captions, three-line tables |
+| 51MCM | Chinese | short contest style | fast execution, clear methods, robust formatting |
+| MCM/ICM | English | 96h style | communication quality, summary/abstract clarity, reproducible evidence |
+
+For Chinese competitions, use Chinese figure/table labels and concise formal Chinese. For MCM/ICM, use English labels and keep the writing argument-first.
+
+## Depth Mode
+
+Choose a work depth from the user's deadline and intent:
+
+| Mode | Use when | Behavior |
+|---|---|---|
+| Fast | quick feasibility check or very short deadline | baseline, one main model, minimal audit |
+| Standard | normal contest workflow | full G1-G6, baseline comparisons, robustness checks |
+| Championship | final push or high-quality submission | deeper review, adversarial critique, extra consistency checks |
+
+Manual mode and depth mode are independent: Manual controls checkpoint style; depth controls how much review and iteration to spend.
 
 ## Canonical Workflow
 
@@ -167,6 +236,32 @@ For each model, include:
 - result interpretation
 
 Read `references/model-formulation-guide.md` for deeper formulation guidance and `references/robustness-guide.md` for robustness checks.
+
+## Algorithm Selection
+
+When selecting algorithms, classify the subproblem first:
+
+| Problem type | Typical families |
+|---|---|
+| optimization/scheduling | linear/integer programming, dynamic programming, heuristics, multi-objective optimization |
+| prediction/forecasting | regression, grey prediction, ARIMA/Prophet, tree boosting, neural sequence models |
+| evaluation/ranking | AHP, entropy weight, TOPSIS, fuzzy evaluation, DEA |
+| graph/network | shortest path, max flow, matching, centrality, community detection |
+| statistics/data mining | clustering, PCA/factor analysis, hypothesis testing, anomaly detection |
+| simulation/mechanism | Monte Carlo, queueing, Markov chains, differential equations, agent simulation |
+
+Prefer combinations only when each model contributes a distinct analytical dimension. Avoid stacking models that answer the same question with different names.
+
+## Feedback Layers
+
+Use feedback in layers instead of one giant review:
+
+1. Local critic: check the current gate artifact against its pass criteria.
+2. Backtrack check: after results or paper sections change, inspect upstream/downstream consistency.
+3. Review panel: before final delivery, review from modeling, coding, writing, and skeptical perspectives.
+4. Calibration check: compare claims against contest type, rubric expectations, and available evidence.
+
+If only one issue is weak, refine that subproblem or section. Do not redo the whole workflow unless the dependency DAG shows the issue affects everything downstream.
 
 ## Integrity Rules
 
